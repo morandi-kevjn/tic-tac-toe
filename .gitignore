@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# WebStorm / JetBrains IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
