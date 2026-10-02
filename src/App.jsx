@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Square({value, onSquareClick, highlight}) {
     return (
@@ -96,9 +96,28 @@ function Board({xIsNext, squares, onPlay}) {
 }
 
 export default function Game() {
-    const [history, setHistory] = useState([{
-        squares: Array(9).fill(null), location: null}]);
-    const [currentMove, setCurrentMove] = useState(0);
+    const [history, setHistory] = useState(() => {
+        const savedGame = localStorage.getItem("ticTacToeHistory");
+        if (savedGame) {
+            return JSON.parse(savedGame);
+        }
+
+        return [{ squares: Array(9).fill(null), location: null }];
+    });
+
+    const [currentMove, setCurrentMove] = useState(() => {
+        const savedMove = localStorage.getItem("ticTacToeMove");
+        if (savedMove) {
+            return JSON.parse(savedMove);
+        }
+        return 0;
+    });
+
+    useEffect(() => {
+        localStorage.setItem("ticTacToeHistory", JSON.stringify(history));
+        localStorage.setItem("ticTacToeMove", JSON.stringify(currentMove));
+    }, [history, currentMove]);
+
     const [isAscending, setIsAscending] = useState(true);
     const xIsNext = currentMove % 2 === 0;
     const currentSquares = history[currentMove].squares;
@@ -118,6 +137,13 @@ export default function Game() {
 
     function jumpTo(nextMove) {
         setCurrentMove(nextMove);
+    }
+
+    function handleReset() {
+        setHistory([{ squares: Array(9).fill(null), location: null }]);
+        setCurrentMove(0);
+        localStorage.removeItem("ticTacToeHistory");
+        localStorage.removeItem("ticTacToeMove");
     }
 
     const moves = history.map((step, move) => {
@@ -153,6 +179,7 @@ export default function Game() {
                 <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
             </div>
             <div className="game-info">
+                <button onClick={handleReset}>Reset Game</button>
                 <button onClick={() => setIsAscending((!isAscending))}>
                     Sort {isAscending ? 'Descending' : 'Ascending'}
                 </button>
