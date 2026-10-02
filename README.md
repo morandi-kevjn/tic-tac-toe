@@ -1,16 +1,30 @@
-# React + Vite
+# React Tic-Tac-Toe 🎮
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fully functional Tic-Tac-Toe game built with React and Vite. This project was built to master React fundamentals, including state management, custom hooks, and side effects.
 
-Currently, two official plugins are available:
+## ✨ Features
+- **Classic Gameplay:** Play against a friend locally.
+- **Time Travel:** Jump back to any previous move in the game history.
+- **Computer AI:** Play against a simple random-move computer opponent.
+- **Move History:** Detailed move log showing the exact row and column of every play.
+- **Winning Highlight:** Visually highlights the three squares that secured the victory.
+- **Persistence:** Automatically saves your game state to Local Storage so you can refresh the page without losing progress.
+- **Sorting:** Toggle the move history between ascending and descending order.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Tech Stack
+- **React** (State, Effects, Custom Hooks)
+- **Vite** (Build tool)
+- **CSS** (Grid & Flexbox)
+- **Local Storage** (Browser API)
 
-## React Compiler
+## 🚀 How to Run
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start the development server: `npm run dev`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🧠 What I Learned
+- Separating UI components from logic using **Custom Hooks** (`useTicTacToe.js`).
+- Managing complex state arrays (History) and time-traveling through them.
+- Using `useEffect` to sync state with Local Storage and trigger a computer opponent.
+- Avoiding the "stale closure" trap using `useCallback`.
+- Extracting pure helper functions into a `utils.js` file.
