@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 function Square({value, onSquareClick, highlight}) {
     return (
@@ -96,6 +96,7 @@ function Board({xIsNext, squares, onPlay}) {
 }
 
 export default function Game() {
+    // create the history and currentMove and set to localStorage
     const [history, setHistory] = useState(() => {
         const savedGame = localStorage.getItem("ticTacToeHistory");
         if (savedGame) {
@@ -113,6 +114,7 @@ export default function Game() {
         return 0;
     });
 
+    // auto update the localStorage
     useEffect(() => {
         localStorage.setItem("ticTacToeHistory", JSON.stringify(history));
         localStorage.setItem("ticTacToeMove", JSON.stringify(currentMove));
@@ -122,7 +124,7 @@ export default function Game() {
     const xIsNext = currentMove % 2 === 0;
     const currentSquares = history[currentMove].squares;
 
-    function handlePlay(nextSquares, index) {
+    const handlePlay = useCallback((nextSquares, index) => {
         const row = Math.floor(index / 3) + 1;
         const col = (index % 3) + 1;
         const location = `(${row}, ${col})`;
@@ -133,7 +135,33 @@ export default function Game() {
 
         setHistory(nextHistory);
         setCurrentMove(nextHistory.length - 1);
-    }
+    }, [history, currentMove]);
+
+    // add computer player
+    const [isVsComputer, setIsVsComputer] = useState(false);
+    useEffect(() => {
+        if (!isVsComputer || xIsNext)
+            return;
+
+        if (calculateWinner(currentSquares)
+            || currentSquares.every(square => square !== null))
+            return;
+
+        const emptySquares = currentSquares
+            .map((square, index) => square === null ? index : null)
+            .filter(val => val !== null);
+
+        const randomIndex = emptySquares[Math.floor(
+            Math.random() * emptySquares.length)];
+
+        const timer = setTimeout(() => {
+            const nextSquares = currentSquares.slice();
+            nextSquares[randomIndex] = "O";
+            handlePlay(nextSquares, randomIndex);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [currentSquares, xIsNext, isVsComputer, handlePlay]);
 
     function jumpTo(nextMove) {
         setCurrentMove(nextMove);
@@ -180,6 +208,9 @@ export default function Game() {
             </div>
             <div className="game-info">
                 <button onClick={handleReset}>Reset Game</button>
+                <button onClick={() => setIsVsComputer(!isVsComputer)}>
+                    {isVsComputer ? "Playing vs computer" : "Playing vs Human"}
+                </button>
                 <button onClick={() => setIsAscending((!isAscending))}>
                     Sort {isAscending ? 'Descending' : 'Ascending'}
                 </button>
