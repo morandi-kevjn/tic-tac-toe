@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useTicTacToe} from "./useTicTacToe.js";
+import { calculateWinner } from "./utils.js";
 
 function Square({value, onSquareClick, highlight}) {
     return (
@@ -9,30 +10,6 @@ function Square({value, onSquareClick, highlight}) {
             {value}
         </button>
     );
-}
-
-function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ];
-
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b]
-            && squares[a] === squares[c]) {
-
-            return lines[i];
-        }
-    }
-
-    return null;
 }
 
 function Board({xIsNext, squares, onPlay}) {
@@ -96,83 +73,19 @@ function Board({xIsNext, squares, onPlay}) {
 }
 
 export default function Game() {
-    // create the history and currentMove and set to localStorage
-    const [history, setHistory] = useState(() => {
-        const savedGame = localStorage.getItem("ticTacToeHistory");
-        if (savedGame) {
-            return JSON.parse(savedGame);
-        }
-
-        return [{ squares: Array(9).fill(null), location: null }];
-    });
-
-    const [currentMove, setCurrentMove] = useState(() => {
-        const savedMove = localStorage.getItem("ticTacToeMove");
-        if (savedMove) {
-            return JSON.parse(savedMove);
-        }
-        return 0;
-    });
-
-    // auto update the localStorage
-    useEffect(() => {
-        localStorage.setItem("ticTacToeHistory", JSON.stringify(history));
-        localStorage.setItem("ticTacToeMove", JSON.stringify(currentMove));
-    }, [history, currentMove]);
-
-    const [isAscending, setIsAscending] = useState(true);
-    const xIsNext = currentMove % 2 === 0;
-    const currentSquares = history[currentMove].squares;
-
-    const handlePlay = useCallback((nextSquares, index) => {
-        const row = Math.floor(index / 3) + 1;
-        const col = (index % 3) + 1;
-        const location = `(${row}, ${col})`;
-        const nextHistory = [
-            ...history.slice(0, currentMove + 1),
-            { squares: nextSquares, location: location }
-        ];
-
-        setHistory(nextHistory);
-        setCurrentMove(nextHistory.length - 1);
-    }, [history, currentMove]);
-
-    // add computer player
-    const [isVsComputer, setIsVsComputer] = useState(false);
-    useEffect(() => {
-        if (!isVsComputer || xIsNext)
-            return;
-
-        if (calculateWinner(currentSquares)
-            || currentSquares.every(square => square !== null))
-            return;
-
-        const emptySquares = currentSquares
-            .map((square, index) => square === null ? index : null)
-            .filter(val => val !== null);
-
-        const randomIndex = emptySquares[Math.floor(
-            Math.random() * emptySquares.length)];
-
-        const timer = setTimeout(() => {
-            const nextSquares = currentSquares.slice();
-            nextSquares[randomIndex] = "O";
-            handlePlay(nextSquares, randomIndex);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [currentSquares, xIsNext, isVsComputer, handlePlay]);
-
-    function jumpTo(nextMove) {
-        setCurrentMove(nextMove);
-    }
-
-    function handleReset() {
-        setHistory([{ squares: Array(9).fill(null), location: null }]);
-        setCurrentMove(0);
-        localStorage.removeItem("ticTacToeHistory");
-        localStorage.removeItem("ticTacToeMove");
-    }
+    const {
+        history,
+        currentMove,
+        xIsNext,
+        currentSquares,
+        isAscending,
+        setIsAscending,
+        isVsComputer,
+        setIsVsComputer,
+        handlePlay,
+        jumpTo,
+        handleReset
+    } = useTicTacToe();
 
     const moves = history.map((step, move) => {
         const location = step.location;
